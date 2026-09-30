@@ -96,8 +96,8 @@ function EditForm({ id, message, onDone }: { id: number; message: string; onDone
       <PasswordInput />
       <ErrorText text={error} />
       <div className="flex gap-2">
-        <button disabled={pending} className={button}>수정하기</button>
-        <button type="button" onClick={onDone} className={link}>취소하기</button>
+        <button disabled={pending} className={button}>수정</button>
+        <button type="button" onClick={onDone} className={link}>취소</button>
       </div>
     </form>
   );
