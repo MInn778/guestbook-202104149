@@ -121,7 +121,9 @@ export function EntryActions({
         {!removed && (
           <>
             <button onClick={() => setMode(mode === "edit" ? null : "edit")} className={link}>수정</button>
-            <button onClick={() => setMode(mode === "delete" ? null : "delete")} className={link}>삭제</button>
+            {!admin && (
+              <button onClick={() => setMode(mode === "delete" ? null : "delete")} className={link}>삭제</button>
+            )}
           </>
         )}
         {admin && !removed && (
