@@ -15,7 +15,7 @@ export default async function Page() {
   const admin = await isAdmin(); // reads cookies, so the page renders per request
   const entries = await listEntries({ isAdmin: admin });
   return (
-    <main className="mx-auto w-full max-w-2xl space-y-6 px-4 py-8">
+    <main className="mx-auto w-full max-w-2xl space-y-6 px-4 pt-8 pb-24">
       <header className="flex items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold">미니 방명록</h1>
