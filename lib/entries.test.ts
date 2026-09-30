@@ -27,7 +27,7 @@ async function make(message: string) {
 after(async () => {
   for (const id of created) {
     await restoreEntry(id);
-    await deleteEntry(id, PW);
+    await deleteEntry(id, PW, { isAdmin: true });
   }
 });
 
@@ -129,6 +129,19 @@ test("an Entry written by the Admin is marked as such; others are not", async ()
   const plain = await find(await make(`${tag}-plain`));
   assert.ok(plain && "message" in plain);
   assert.equal(plain.byAdmin, false);
+});
+
+test("an Admin Entry can be edited or deleted only while logged in as the Admin", async () => {
+  const tag = `adm-lock-${Date.now()}`;
+  await createEntry({ authorName: "관리자", message: tag, password: PW, byAdmin: true });
+  const e = (await listEntries({ isAdmin: true })).find((e) => "message" in e && e.message === tag);
+  assert.ok(e);
+  created.push(e.id);
+  assert.equal(await updateMessage(e.id, PW, "x"), "admin-only");
+  assert.equal(await deleteEntry(e.id, PW), "admin-only");
+  assert.equal(await updateMessage(e.id, PW, `${tag}-edited`, { isAdmin: true }), "ok");
+  assert.equal(await deleteEntry(e.id, PW, { isAdmin: true }), "ok");
+  assert.equal(await find(e.id, true), undefined);
 });
 
 test("blank or too-long input is rejected", async () => {

@@ -122,11 +122,13 @@ export function EntryActions({
   message,
   removed,
   admin,
+  byAdmin,
 }: {
   id: number;
   message: string;
   removed: boolean;
   admin: boolean;
+  byAdmin: boolean;
 }) {
   const [mode, setMode] = useState<"edit" | "delete" | null>(null);
   const [pending, start] = useTransition();
@@ -142,7 +144,8 @@ export function EntryActions({
   return (
     <>
       <div className="mt-3 flex gap-3">
-        {!removed && (
+        {/* An Admin Entry can only be touched by the Admin (the server enforces this too). */}
+        {!removed && (admin || !byAdmin) && (
           <>
             <button onClick={() => setMode(mode === "edit" ? null : "edit")} className={link}>수정</button>
             {!admin && (

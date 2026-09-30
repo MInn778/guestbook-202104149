@@ -31,7 +31,7 @@ The single guestbook operator who can remove and restore any Entry but can never
 _Avoid_: Moderator, manager, superuser
 
 **Admin Entry**:
-An Entry written while logged in as the Admin; it is visibly marked "관리자" so readers can tell it came from the operator.
+An Entry written while logged in as the Admin; it is visibly marked "관리자" so readers can tell it came from the operator, and only the Admin can edit or delete it.
 _Avoid_: Notice, announcement, official post
 
 **Delete**:

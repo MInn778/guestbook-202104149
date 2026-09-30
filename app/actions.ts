@@ -19,6 +19,7 @@ const MESSAGES = {
   removed: "관리자에 의해 삭제된 글입니다",
   "admin-wrong-password": "관리자 비밀번호가 일치하지 않습니다",
   "not-admin": "관리자만 할 수 있습니다",
+  "admin-only": "관리자 게시물은 관리자만 수정·삭제할 수 있습니다",
 } as const;
 
 function toResult(r: "ok" | keyof typeof MESSAGES): ActionResult {
@@ -44,11 +45,13 @@ export async function createAction(fd: FormData) {
 const entryId = (id: unknown) => (Number.isInteger(id) ? (id as number) : -1);
 
 export async function updateAction(id: number, fd: FormData) {
-  return toResult(await updateMessage(entryId(id), str(fd, "password"), str(fd, "message")));
+  const session = { isAdmin: await isAdmin() };
+  return toResult(await updateMessage(entryId(id), str(fd, "password"), str(fd, "message"), session));
 }
 
 export async function deleteAction(id: number, fd: FormData) {
-  return toResult(await deleteEntry(entryId(id), str(fd, "password")));
+  const session = { isAdmin: await isAdmin() };
+  return toResult(await deleteEntry(entryId(id), str(fd, "password"), session));
 }
 
 export async function loginAction(fd: FormData) {

@@ -46,7 +46,7 @@ export default async function Page() {
                   </span>
                 </div>
                 <p className="mt-2 whitespace-pre-wrap break-words">{e.message}</p>
-                <EntryActions id={e.id} message={e.message} removed={e.removed} admin={admin} />
+                <EntryActions id={e.id} message={e.message} removed={e.removed} admin={admin} byAdmin={e.byAdmin} />
               </li>
             ) : (
               <li key={e.id} className="rounded-lg border border-dashed border-zinc-300 p-4 text-center text-sm text-zinc-500 dark:border-zinc-700">

@@ -81,11 +81,15 @@ export async function createEntry(input: {
   return "ok";
 }
 
-async function authorize(id: number, password: string) {
+/** `isAdmin`: the caller verified the Admin session; required to touch an Admin Entry. */
+type Session = { isAdmin?: boolean };
+
+async function authorize(id: number, password: string, { isAdmin = false }: Session) {
   const [row] = (await sql()`
-    SELECT password_hash, removed_at FROM entries WHERE id = ${id}`) as Row[];
+    SELECT password_hash, removed_at, by_admin FROM entries WHERE id = ${id}`) as Row[];
   if (!row) return "not-found";
   if (row.removed_at) return "removed";
+  if (row.by_admin && !isAdmin) return "admin-only";
   if (!verify(password.trim(), row.password_hash)) return "wrong-password";
   return "ok";
 }
@@ -94,10 +98,11 @@ export async function updateMessage(
   id: number,
   password: string,
   message: string,
-): Promise<"ok" | "invalid" | "wrong-password" | "not-found" | "removed"> {
+  session: Session = {},
+): Promise<"ok" | "invalid" | "wrong-password" | "not-found" | "removed" | "admin-only"> {
   const cleanMessage = clean(message, 1, 500);
   if (!cleanMessage) return "invalid";
-  const auth = await authorize(id, password);
+  const auth = await authorize(id, password, session);
   if (auth !== "ok") return auth;
   const rows = await sql()`
     UPDATE entries SET message = ${cleanMessage}, updated_at = now()
@@ -114,8 +119,9 @@ async function lostRace(id: number) {
 export async function deleteEntry(
   id: number,
   password: string,
-): Promise<"ok" | "wrong-password" | "not-found" | "removed"> {
-  const auth = await authorize(id, password);
+  session: Session = {},
+): Promise<"ok" | "wrong-password" | "not-found" | "removed" | "admin-only"> {
+  const auth = await authorize(id, password, session);
   if (auth !== "ok") return auth;
   const rows = await sql()`DELETE FROM entries WHERE id = ${id} AND removed_at IS NULL RETURNING id`;
   return rows.length ? "ok" : lostRace(id);
