@@ -1,6 +1,6 @@
 import { listEntries } from "@/lib/entries";
-import { connection } from "next/server";
-import { CreateForm } from "./ui";
+import { isAdmin } from "@/lib/admin";
+import { AdminControl, CreateForm, EntryActions } from "./ui";
 
 const fmt = new Intl.DateTimeFormat("sv-SE", {
   timeZone: "Asia/Seoul",
@@ -12,8 +12,8 @@ const fmt = new Intl.DateTimeFormat("sv-SE", {
 }); // sv-SE gives "YYYY-MM-DD HH:mm"
 
 export default async function Page() {
-  await connection(); // render per request, never prerender the list
-  const entries = await listEntries({ isAdmin: false });
+  const admin = await isAdmin(); // reads cookies, so the page renders per request
+  const entries = await listEntries({ isAdmin: admin });
   return (
     <main className="mx-auto w-full max-w-2xl space-y-6 px-4 py-8">
       <header className="flex items-start justify-between gap-4">
@@ -21,6 +21,7 @@ export default async function Page() {
           <h1 className="text-2xl font-bold">미니 방명록</h1>
           <p className="text-sm text-zinc-500">개발자: 김민혁-202104149</p>
         </div>
+        <AdminControl admin={admin} />
       </header>
       <CreateForm />
       {entries.length === 0 ? (
@@ -29,17 +30,28 @@ export default async function Page() {
         <ul className="space-y-3">
           {entries.map((e) =>
             "message" in e ? (
-              <li key={e.id} className="rounded-lg border border-zinc-200 p-4 dark:border-zinc-800">
+              <li
+                key={e.id}
+                className={`rounded-lg border border-zinc-200 p-4 dark:border-zinc-800 ${e.removed ? "opacity-50" : ""}`}
+              >
                 <div className="flex justify-between text-sm">
-                  <span className="font-semibold">{e.authorName}</span>
+                  <span className="font-semibold">
+                    {e.authorName}
+                    {e.removed && <span className="ml-2 rounded bg-red-100 px-1.5 text-xs text-red-700">삭제됨</span>}
+                  </span>
                   <span className="text-zinc-500">
                     {fmt.format(e.createdAt)}
                     {e.edited && " (수정됨)"}
                   </span>
                 </div>
                 <p className="mt-2 whitespace-pre-wrap break-words">{e.message}</p>
+                <EntryActions id={e.id} message={e.message} removed={e.removed} admin={admin} />
               </li>
-            ) : null,
+            ) : (
+              <li key={e.id} className="rounded-lg border border-dashed border-zinc-300 p-4 text-center text-sm text-zinc-500 dark:border-zinc-700">
+                관리자에 의해 삭제된 글입니다
+              </li>
+            ),
           )}
         </ul>
       )}

@@ -85,6 +85,21 @@ async function authorize(id: number, password: string) {
   return "ok";
 }
 
+export async function updateMessage(
+  id: number,
+  password: string,
+  message: string,
+): Promise<"ok" | "invalid" | "wrong-password" | "not-found" | "removed"> {
+  const text = clean(message, 1, 500);
+  if (!text) return "invalid";
+  const auth = await authorize(id, password);
+  if (auth !== "ok") return auth;
+  await sql()`
+    UPDATE entries SET message = ${text}, updated_at = now()
+    WHERE id = ${id} AND removed_at IS NULL`;
+  return "ok";
+}
+
 export async function deleteEntry(
   id: number,
   password: string,
@@ -93,4 +108,17 @@ export async function deleteEntry(
   if (auth !== "ok") return auth;
   await sql()`DELETE FROM entries WHERE id = ${id} AND removed_at IS NULL`;
   return "ok";
+}
+
+// Admin only: callers must verify the Admin session first (ADR 0001: soft delete).
+export async function removeEntry(id: number): Promise<"ok" | "not-found"> {
+  const rows = await sql()`
+    UPDATE entries SET removed_at = coalesce(removed_at, now()) WHERE id = ${id} RETURNING id`;
+  return rows.length ? "ok" : "not-found";
+}
+
+export async function restoreEntry(id: number): Promise<"ok" | "not-found"> {
+  const rows = await sql()`
+    UPDATE entries SET removed_at = NULL WHERE id = ${id} RETURNING id`;
+  return rows.length ? "ok" : "not-found";
 }
