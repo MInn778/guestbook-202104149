@@ -96,6 +96,8 @@ test("a Removed Entry shows no content to non-Admins but stays visible to the Ad
   assert.ok(adm && "message" in adm);
   assert.equal(adm.message, message);
   assert.equal(adm.removed, true);
+  const pos = (l: { id: number }[]) => l.findIndex((e) => e.id === id);
+  assert.equal(pos(await listEntries({ isAdmin: false })), pos(await listEntries({ isAdmin: true })));
 });
 
 test("the author cannot edit or delete a Removed Entry; Restore brings the Password back", async () => {

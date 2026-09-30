@@ -39,12 +39,15 @@ export async function createAction(fd: FormData) {
   );
 }
 
+// Action arguments come from the client and can be tampered with; a bad id matches no Entry.
+const entryId = (id: unknown) => (Number.isInteger(id) ? (id as number) : -1);
+
 export async function updateAction(id: number, fd: FormData) {
-  return toResult(await updateMessage(id, str(fd, "password"), str(fd, "message")));
+  return toResult(await updateMessage(entryId(id), str(fd, "password"), str(fd, "message")));
 }
 
 export async function deleteAction(id: number, fd: FormData) {
-  return toResult(await deleteEntry(id, str(fd, "password")));
+  return toResult(await deleteEntry(entryId(id), str(fd, "password")));
 }
 
 export async function loginAction(fd: FormData) {
@@ -58,9 +61,9 @@ export async function logoutAction() {
 
 // Admin rights are re-checked on the server for every call; hidden buttons are not protection.
 export async function removeAction(id: number) {
-  return toResult((await isAdmin()) ? await removeEntry(id) : "not-admin");
+  return toResult((await isAdmin()) ? await removeEntry(entryId(id)) : "not-admin");
 }
 
 export async function restoreAction(id: number) {
-  return toResult((await isAdmin()) ? await restoreEntry(id) : "not-admin");
+  return toResult((await isAdmin()) ? await restoreEntry(entryId(id)) : "not-admin");
 }

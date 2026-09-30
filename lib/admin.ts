@@ -5,10 +5,10 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 
 const COOKIE = "admin";
 
+// Hash both sides first so the comparison is equal-length and doesn't leak the length.
 function same(a: string, b: string) {
-  const x = Buffer.from(a);
-  const y = Buffer.from(b);
-  return x.length === y.length && timingSafeEqual(x, y);
+  const h = (s: string) => createHmac("sha256", "cmp").update(s).digest();
+  return timingSafeEqual(h(a), h(b));
 }
 
 function token() {

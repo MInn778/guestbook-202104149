@@ -90,14 +90,20 @@ export async function updateMessage(
   password: string,
   message: string,
 ): Promise<"ok" | "invalid" | "wrong-password" | "not-found" | "removed"> {
-  const text = clean(message, 1, 500);
-  if (!text) return "invalid";
+  const cleanMessage = clean(message, 1, 500);
+  if (!cleanMessage) return "invalid";
   const auth = await authorize(id, password);
   if (auth !== "ok") return auth;
-  await sql()`
-    UPDATE entries SET message = ${text}, updated_at = now()
-    WHERE id = ${id} AND removed_at IS NULL`;
-  return "ok";
+  const rows = await sql()`
+    UPDATE entries SET message = ${cleanMessage}, updated_at = now()
+    WHERE id = ${id} AND removed_at IS NULL RETURNING id`;
+  return rows.length ? "ok" : lostRace(id);
+}
+
+// The Entry was Deleted or Removed between the Password check and the write.
+async function lostRace(id: number) {
+  const [row] = await sql()`SELECT 1 FROM entries WHERE id = ${id}`;
+  return row ? "removed" : "not-found";
 }
 
 export async function deleteEntry(
@@ -106,8 +112,8 @@ export async function deleteEntry(
 ): Promise<"ok" | "wrong-password" | "not-found" | "removed"> {
   const auth = await authorize(id, password);
   if (auth !== "ok") return auth;
-  await sql()`DELETE FROM entries WHERE id = ${id} AND removed_at IS NULL`;
-  return "ok";
+  const rows = await sql()`DELETE FROM entries WHERE id = ${id} AND removed_at IS NULL RETURNING id`;
+  return rows.length ? "ok" : lostRace(id);
 }
 
 // Admin only: callers must verify the Admin session first (ADR 0001: soft delete).
