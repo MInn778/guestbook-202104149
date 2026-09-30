@@ -35,9 +35,9 @@ function useSubmit(
   return { error, pending, onSubmit };
 }
 
-const input = "w-full rounded border border-zinc-300 px-3 py-2 dark:border-zinc-700 dark:bg-zinc-900";
-const button = "rounded bg-zinc-900 px-3 py-1.5 text-sm text-white disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900";
-const link = "text-sm text-zinc-500 underline-offset-2 hover:underline disabled:opacity-50";
+const input = "w-full rounded-md border border-amber-900/20 bg-white/70 px-3 py-2 focus:outline-2 focus:outline-amber-700";
+const button = "rounded-full bg-amber-800 px-4 py-1.5 text-sm text-amber-50 hover:bg-amber-900 disabled:opacity-50";
+const link = "text-sm text-amber-900/70 underline-offset-2 hover:underline disabled:opacity-50";
 
 function ErrorText({ text }: { text?: string }) {
   return text ? <p role="alert" className="text-sm text-red-600">{text}</p> : null;
@@ -54,28 +54,28 @@ export function CreateForm() {
     <>
       <button
         onClick={() => dialog.current?.showModal()}
-        className="fixed right-6 bottom-6 rounded-full bg-zinc-900 px-5 py-3 text-white shadow-lg dark:bg-zinc-100 dark:text-zinc-900"
+        className="fixed right-6 bottom-6 rounded-full bg-amber-800 px-6 py-3 font-hand text-2xl text-amber-50 shadow-lg hover:bg-amber-900"
       >
-        글쓰기
+        ✏️ 글쓰기
       </button>
       <dialog
         ref={dialog}
-        className="m-auto w-[calc(100%-2rem)] max-w-lg rounded-lg bg-white p-0 backdrop:bg-black/40 dark:bg-zinc-950 dark:text-zinc-100"
+        className="m-auto w-[calc(100%-2rem)] max-w-lg rounded-sm bg-yellow-50 p-0 text-amber-950 shadow-xl backdrop:bg-amber-950/40"
       >
         <form onSubmit={onSubmit} className="space-y-2 p-4">
           <div className="flex items-center justify-between">
-            <h2 className="font-semibold">방명록 남기기</h2>
+            <h2 className="font-hand text-3xl font-bold">방명록 남기기</h2>
             <button type="button" onClick={() => dialog.current?.close()} aria-label="닫기" className={link}>
               닫기
             </button>
           </div>
-      <div className="flex gap-2">
-        <input name="authorName" placeholder="이름" aria-label="이름" required maxLength={20} className={input} />
-        <input name="password" type="password" placeholder="비밀번호 (4~20자)" aria-label="비밀번호" required minLength={4} maxLength={20} className={input} />
-      </div>
-      <textarea name="message" placeholder="메시지를 남겨주세요" aria-label="메시지" required maxLength={500} rows={3} className={input} />
-      <ErrorText text={error} />
-      <button disabled={pending} className={button}>{pending ? "저장 중…" : "남기기"}</button>
+          <div className="flex gap-2">
+            <input name="authorName" placeholder="이름" aria-label="이름" required maxLength={20} className={input} />
+            <input name="password" type="password" placeholder="비밀번호 (4~20자)" aria-label="비밀번호" required minLength={4} maxLength={20} className={input} />
+          </div>
+          <textarea name="message" placeholder="메시지를 남겨주세요" aria-label="메시지" required maxLength={500} rows={4} className={`${input} font-hand text-xl`} />
+          <ErrorText text={error} />
+          <button disabled={pending} className={button}>{pending ? "저장 중…" : "남기기"}</button>
         </form>
       </dialog>
     </>
@@ -92,7 +92,7 @@ function EditForm({ id, message, onDone }: { id: number; message: string; onDone
   const { error, pending, onSubmit } = useSubmit(updateAction.bind(null, id), onDone);
   return (
     <form onSubmit={onSubmit} className="mt-3 space-y-2">
-      <textarea name="message" defaultValue={message} aria-label="메시지" required maxLength={500} rows={3} className={input} />
+      <textarea name="message" defaultValue={message} aria-label="메시지" required maxLength={500} rows={3} className={`${input} font-hand text-xl`} />
       <PasswordInput />
       <ErrorText text={error} />
       <div className="flex gap-2">

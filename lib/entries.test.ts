@@ -68,6 +68,9 @@ test("edit with the right Password changes only the Message and marks it Edited"
   assert.ok(after && "message" in after && before && "message" in before);
   assert.equal(after.message, "고친 메시지");
   assert.equal(after.edited, true);
+  assert.equal(before.updatedAt, null);
+  assert.ok(after.updatedAt instanceof Date);
+  assert.ok(after.updatedAt.getTime() >= after.createdAt.getTime());
   assert.equal(after.authorName, before.authorName);
   assert.equal(after.createdAt.getTime(), before.createdAt.getTime());
   assert.equal(await updateMessage(id, PW, "   "), "invalid");

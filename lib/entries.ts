@@ -12,6 +12,8 @@ export type Entry = {
   message: string;
   createdAt: Date;
   edited: boolean;
+  /** When the Message was last changed; null until Edited. */
+  updatedAt: Date | null;
   removed: boolean;
   byAdmin: boolean;
 };
@@ -58,6 +60,7 @@ export async function listEntries({ isAdmin }: { isAdmin: boolean }): Promise<En
           message: r.message,
           createdAt: new Date(r.created_at),
           edited: r.updated_at !== null,
+          updatedAt: r.updated_at && new Date(r.updated_at),
           removed: r.removed_at !== null,
           byAdmin: r.by_admin,
         },
