@@ -183,7 +183,7 @@ export function AdminControl({ admin }: { admin: boolean }) {
     );
   return (
     <div className="flex flex-col items-end gap-2">
-      <button onClick={() => setOpen(!open)} className={link}>관리자</button>
+      <button onClick={() => setOpen(!open)} className={link}>관리자로 로그인</button>
       {open && (
         <form onSubmit={onSubmit} className="flex w-56 flex-col gap-2">
           <input name="password" type="password" placeholder="관리자 비밀번호" aria-label="관리자 비밀번호" required autoFocus className={input} />
