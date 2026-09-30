@@ -6,5 +6,9 @@ CREATE TABLE IF NOT EXISTS entries (
   password_hash text        NOT NULL, -- "salt:hash" (scrypt, hex)
   created_at    timestamptz NOT NULL DEFAULT now(),
   updated_at    timestamptz,          -- set when Edited
-  removed_at    timestamptz           -- set when Removed by the Admin (ADR 0001)
+  removed_at    timestamptz,          -- set when Removed by the Admin (ADR 0001)
+  by_admin      boolean     NOT NULL DEFAULT false -- written while logged in as the Admin
 );
+
+-- For tables created before by_admin existed.
+ALTER TABLE entries ADD COLUMN IF NOT EXISTS by_admin boolean NOT NULL DEFAULT false;

@@ -35,6 +35,7 @@ export async function createAction(fd: FormData) {
       authorName: str(fd, "authorName"),
       message: str(fd, "message"),
       password: str(fd, "password"),
+      byAdmin: await isAdmin(),
     }),
   );
 }

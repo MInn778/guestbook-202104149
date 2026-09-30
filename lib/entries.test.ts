@@ -119,6 +119,18 @@ test("Remove and Restore of an unknown Entry report not-found", async () => {
   assert.equal(await restoreEntry(-1), "not-found");
 });
 
+test("an Entry written by the Admin is marked as such; others are not", async () => {
+  const tag = `adm-${Date.now()}`;
+  assert.equal(await createEntry({ authorName: "관리자", message: tag, password: PW, byAdmin: true }), "ok");
+  const e = (await listEntries({ isAdmin: false })).find((e) => "message" in e && e.message === tag);
+  assert.ok(e && "message" in e);
+  created.push(e.id);
+  assert.equal(e.byAdmin, true);
+  const plain = await find(await make(`${tag}-plain`));
+  assert.ok(plain && "message" in plain);
+  assert.equal(plain.byAdmin, false);
+});
+
 test("blank or too-long input is rejected", async () => {
   const ok = { authorName: "a", message: "m", password: "1234" };
   assert.equal(await createEntry({ ...ok, authorName: "   " }), "invalid");

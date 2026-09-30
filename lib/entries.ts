@@ -13,6 +13,7 @@ export type Entry = {
   createdAt: Date;
   edited: boolean;
   removed: boolean;
+  byAdmin: boolean;
 };
 /** What a non-Admin gets for a Removed Entry: no content at all. */
 export type RemovedNotice = { id: number; removed: true };
@@ -26,6 +27,7 @@ type Row = {
   created_at: Date;
   updated_at: Date | null;
   removed_at: Date | null;
+  by_admin: boolean;
 };
 
 function clean(value: string, min: number, max: number) {
@@ -45,7 +47,7 @@ function verify(password: string, stored: string) {
 
 export async function listEntries({ isAdmin }: { isAdmin: boolean }): Promise<EntryView[]> {
   const rows = (await sql()`
-    SELECT id, author_name, message, created_at, updated_at, removed_at
+    SELECT id, author_name, message, created_at, updated_at, removed_at, by_admin
     FROM entries ORDER BY created_at DESC, id DESC`) as Row[];
   return rows.map((r) =>
     r.removed_at && !isAdmin
@@ -57,6 +59,7 @@ export async function listEntries({ isAdmin }: { isAdmin: boolean }): Promise<En
           createdAt: new Date(r.created_at),
           edited: r.updated_at !== null,
           removed: r.removed_at !== null,
+          byAdmin: r.by_admin,
         },
   );
 }
@@ -65,14 +68,16 @@ export async function createEntry(input: {
   authorName: string;
   message: string;
   password: string;
+  /** Caller must have verified the Admin session; never take this from form input. */
+  byAdmin?: boolean;
 }): Promise<"ok" | "invalid"> {
   const authorName = clean(input.authorName, 1, 20);
   const message = clean(input.message, 1, 500);
   const password = clean(input.password, 4, 20);
   if (!authorName || !message || !password) return "invalid";
   await sql()`
-    INSERT INTO entries (author_name, message, password_hash)
-    VALUES (${authorName}, ${message}, ${hash(password)})`;
+    INSERT INTO entries (author_name, message, password_hash, by_admin)
+    VALUES (${authorName}, ${message}, ${hash(password)}, ${input.byAdmin ?? false})`;
   return "ok";
 }
 

@@ -30,6 +30,10 @@ _Avoid_: Modified, updated
 The single guestbook operator who can remove and restore any Entry but can never change a Message.
 _Avoid_: Moderator, manager, superuser
 
+**Admin Entry**:
+An Entry written while logged in as the Admin; it is visibly marked "관리자" so readers can tell it came from the operator.
+_Avoid_: Notice, announcement, official post
+
 **Delete**:
 An author, using the Entry's Password, erasing their own Entry so it disappears from the list entirely.
 _Avoid_: Remove (reserved for the Admin action)

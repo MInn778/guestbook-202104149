@@ -32,11 +32,12 @@ export default async function Page() {
             "message" in e ? (
               <li
                 key={e.id}
-                className={`rounded-lg border border-zinc-200 p-4 dark:border-zinc-800 ${e.removed ? "opacity-50" : ""}`}
+                className={`rounded-lg border p-4 ${e.byAdmin ? "border-blue-300 bg-blue-50/50 dark:border-blue-800 dark:bg-blue-950/30" : "border-zinc-200 dark:border-zinc-800"} ${e.removed ? "opacity-50" : ""}`}
               >
                 <div className="flex justify-between text-sm">
                   <span className="font-semibold">
                     {e.authorName}
+                    {e.byAdmin && <span className="ml-2 rounded bg-blue-100 px-1.5 text-xs text-blue-700">관리자</span>}
                     {e.removed && <span className="ml-2 rounded bg-red-100 px-1.5 text-xs text-red-700">삭제됨</span>}
                   </span>
                   <span className="text-zinc-500">
